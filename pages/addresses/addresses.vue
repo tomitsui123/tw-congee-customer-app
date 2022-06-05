@@ -24,15 +24,18 @@
 
 <script>
 	import listCell from '@/components/list-cell/list-cell.vue'
-	import {mapState, mapMutations} from 'vuex'
-	
+	import {
+		mapState,
+		mapMutations
+	} from 'vuex'
+
 	export default {
 		components: {
 			listCell
 		},
 		data() {
 			return {
-				
+
 			}
 		},
 		computed: {
@@ -67,29 +70,29 @@
 		margin-top: 20rpx;
 		padding-bottom: 170rpx;
 	}
-	
+
 	.address {
 		width: 100%;
 		display: flex;
 		align-items: center;
-		
+
 		.info {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
 			margin-right: 20rpx;
 			overflow: hidden;
-			
+
 			.user-row {
 				font-size: $font-size-lg;
 				font-weight: 500;
 				margin-bottom: 10rpx;
 			}
-			
+
 			.address-row {
 				display: flex;
 				align-items: center;
-				
+
 				.is-default {
 					background-color: #faf5ef;
 					font-size: 16rpx;
@@ -98,7 +101,7 @@
 					flex-shrink: 0;
 					margin-right: 6rpx;
 				}
-				
+
 				.address {
 					font-size: $font-size-base;
 					overflow: hidden;
@@ -107,14 +110,14 @@
 				}
 			}
 		}
-		
+
 		.edit-btn {
 			width: 45rpx;
 			height: 45rpx;
 			margin-right: 20rpx;
 		}
 	}
-	
+
 	.footer {
 		position: fixed;
 		bottom: 0;
@@ -126,7 +129,7 @@
 		justify-content: center;
 		height: 150rpx;
 		padding: 0 30rpx;
-		
+
 		button {
 			width: 100%;
 			font-size: $font-size-extra-lg;

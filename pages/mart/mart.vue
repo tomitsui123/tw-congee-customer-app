@@ -47,7 +47,7 @@
 						<view class="sub">{{ product.itemSalesVolume }}人已购买</view>
 					</view>
 					<view class="extra">
-						<view class="price">￥{{ product.salePrice / 100 }}</view>
+						<view class="price">${{ product.salePrice / 100 }}</view>
 						<view class="action">
 							<image src="/static/images/common/round_add_normal.png"></image>
 						</view>

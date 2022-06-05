@@ -6,9 +6,9 @@
 					<image src="/static/images/index/icon_shopping_bag.png" class="shopbag-btn"></image>
 					<view class="badge">{{ cartNum }}</view>
 				</view>
-				<view class="price">￥{{ cartPrice }}</view>
+				<view class="price">${{ cartPrice }}</view>
 			</view>
-			<button type="primary" class="right" @tap="pay">结算</button>
+			<button type="primary" class="right" @tap="pay">確認落單</button>
 		</uni-transition>
 		<cart-popup :cart="cart" ref="cartPopup" @add="add" @minus="minus" @clear="clear"></cart-popup>
 	</view>
@@ -31,10 +31,10 @@ export default {
 		}
 	},
 	computed: {
-		cartNum() { //计算购物车总数
+		cartNum() {
 			return this.cart.reduce((acc, cur) => acc + cur.number, 0)
 		},
-		cartPrice() {	//计算购物车总价
+		cartPrice() {
 			return this.cart.reduce((acc, cur) => acc + cur.number * cur.price, 0)
 		}	
 	},
@@ -43,9 +43,7 @@ export default {
 			cartBarStyles: {
 				'position': 'fixed',
 				'bottom': 0,
-				// #ifdef H5
 				'bottom': 'var(--window-bottom)',
-				// #endif
 				'width': '100%',
 				'z-index': '995',
 				'height': '100rpx',

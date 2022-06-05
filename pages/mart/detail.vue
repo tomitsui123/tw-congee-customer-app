@@ -7,7 +7,7 @@
 		</swiper>
 		<view class="p-30 bg-white mb-20">
 			<view class="d-flex justify-content-between align-items-center mb-30">
-				<view class="font-size-extra-lg text-color-primary font-weight-bold">￥{{ parseFloat(detail.salePrice / 100) }}</view>
+				<view class="font-size-extra-lg text-color-primary font-weight-bold">${{ parseFloat(detail.salePrice / 100) }}</view>
 				<view class="font-size-sm text-color-assist">{{ detail.itemSalesVolume }}人已购买</view>
 			</view>
 			<view class="font-size-extra-lg mb-10">{{ detail.name }}</view>
@@ -24,7 +24,7 @@
 					<view class="d-flex align-items-center">
 						<view>{{ detail.placeOfDispatch }}</view>
 						<view class="divider" />
-						<view>快递：￥{{ parseFloat(detail.freight / 100) }}</view>
+						<view>快递：${{ parseFloat(detail.freight / 100) }}</view>
 					</view>
 					<view class="text-color-assist">预计 {{ detail.daysAfterBuyRange }} 发货</view>
 				</view>

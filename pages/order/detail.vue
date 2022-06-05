@@ -36,15 +36,15 @@
 									</view>
 								</view>
 								<view class="flex-shrink-0 font-weight-bold ml-40">x{{ item.quantity }}</view>
-								<view class="flex-shrink-0 font-weight-bold ml-40">￥{{ item.price }}</view>
+								<view class="flex-shrink-0 font-weight-bold ml-40">${{ item.price }}</view>
 							</view>
 							<view class="d-flex justify-content-between align-items-center mt-40 pb-30 border-dashed">
 								<view>商品总价</view>
-								<view>￥{{ order.payment }}</view>
+								<view>${{ order.payment }}</view>
 							</view>
 							<view class="d-flex justify-content-between align-items-center font-size-lg font-weight-bold mt-30 mb-40">
 								<view>合计</view>
-								<view>￥{{ order.total_fee }}</view>
+								<view>${{ order.total_fee }}</view>
 							</view>
 						</view>
 					</list-cell>

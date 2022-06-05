@@ -1,6 +1,5 @@
 <template>
 	<view class="container">
-		<view class="mb-40 font-size-medium">快捷标签</view>
 		<view class="remarks">
 			<view class="remark" :class="{'active': remark.active}" v-for="(remark, index) in remarks" :key="index" @tap="choose(index)">
 				{{ remark.label }}
@@ -19,9 +18,6 @@
 		data() {
 			return {
 				remarks: [
-					{label: '打包', active: 0},
-					{label: '不打包', active: 0},
-					{label: '放在前台', active: 0},
 				],
 				remark: ''
 			}

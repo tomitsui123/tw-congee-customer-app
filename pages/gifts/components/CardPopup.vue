@@ -17,7 +17,7 @@
 							range-key="card_amount" 
 							@change="skuPickerChange">
 						<view class="sku-list-picker">
-							<view class="price">￥{{ product.sku_list[selectedSkuIndex].card_amount }}</view>
+							<view class="price">${{ product.sku_list[selectedSkuIndex].card_amount }}</view>
 							<image src="/static/images/common/icon-drop-down.png" class="down-icon"/>
 						</view>
 					</picker>
@@ -36,7 +36,7 @@
 				</view>
 			</view>
 			<button type="primary" class="submit-btn">
-				确认支付￥{{ product.sku_list && product.sku_list[selectedSkuIndex].card_amount }}
+				确认支付${{ product.sku_list && product.sku_list[selectedSkuIndex].card_amount }}
 			</button>
 		</view>
 	</uni-popup>

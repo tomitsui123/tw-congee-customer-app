@@ -9,6 +9,7 @@ const store = new Vuex.Store({
 		userInfo: {},
 		isLogin: false,
 		orderType: 'takein',
+		menu: {},
 		addresses: [{
 			"id": 1,
 			"user_id": 1,
@@ -23,7 +24,8 @@ const store = new Vuex.Store({
 			"is_default": 1
 		}],
 		address: {},
-		remark: '不打包'
+		tenant: {},
+		remark: ''
 	},
 	mutations: {
 		SET_ORDER_TYPE(state, orderType) {
@@ -40,6 +42,12 @@ const store = new Vuex.Store({
 		},
 		SET_ISLOGIN(state, isLogin) {
 			state.isLogin = isLogin
+		},
+		SET_MENU(state, menu) {
+			state.menu = menu
+		},
+		SET_TENANT(state, tenant) {
+			state.tenant = tenant
 		}
 	}
 })

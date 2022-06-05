@@ -1,31 +1,19 @@
 <template>
 	<modal :show="visible" custom padding="0" width="90%" radius="18rpx">
 		<view class="header">
-			<image src="/static/images/index/menupopup_btn_share_normal.png"></image>
 			<image src="/static/images/index/round_close_btn.png" @tap="$emit('cancel')"></image>
 		</view>
-		<swiper :duration="1000" indicator-dots class="swiper" autoplay :interval="3000">
-			<swiper-item v-for="(image, index) in productData.images" :key="index" class="swiper-item">
-				<image :src="image.url" class="w-100 h-100"></image>
-			</swiper-item>
-		</swiper>
 		<scroll-view scroll-y class="content">
 			<view class="wrapper">
-				<view class="title">{{ productData.name }}</view>
-				<view class="labels">
-					<view class="label" v-for="(label, index) in productData.labels" :key="index" 
-						:style="{color: label.label_color, background: $util.hexToRgba(label.label_color, 0.2)}">
-						{{ label.name }}
-					</view>
-				</view>
-				<view class="mb-10">产品描述</view>
-				<view class="mb-20">{{ productData.description }}</view>
-				<view class="materials" v-for="(material, index) in productData.materials" :key="index">
-					<view class="group-name">{{ material.group_name }}</view>
+				<view class="title">{{ productData.displayName }}</view>
+				<view class="materials" v-for="(material, index) in productData.optionsList" :key="index">
+					<view class="group-name">{{ material.displayName }} {{material.minSelection > 0 ? "必選": ""}}
+						{{material.maxSelection > 0 ? `最多可選${material.maxSelection}個` : ""}}</view>
 					<view class="values">
-						<view class="value" :class="{selected: value.is_selected}" @tap="changeMaterialSelected(index, key)"
-							  v-for="(value, key) in material.values" :key="key">
-							{{ value.name }}
+						<view class="value" :class="{selected: value.isSelected}"
+							@tap="changeMaterialSelected(index, key)" v-for="(value, key) in material.choiceList"
+							:key="key">
+							{{ value.displayName }}
 						</view>
 					</view>
 				</view>
@@ -34,12 +22,13 @@
 		<view class="bottom" :style="{height: !productData.is_single ? '250rpx' : '200rpx'}">
 			<view class="d-flex align-items-center">
 				<view class="price-and-materials">
-					<view class="price">￥{{ productData.price }}</view>
-					<view class="materials" v-show="getProductSelectedMaterials">{{ getProductSelectedMaterials }}</view>
+					<view class="price">${{ productData.price }}</view>
+					<view class="materials" v-show="getProductSelectedMaterials">{{ getProductSelectedMaterials }}
+					</view>
 				</view>
 				<actions :number="productData.number" @add="add" @minus="minus"></actions>
 			</view>
-			<button type="primary" class="add-cart-btn" @tap="addToCart">加入购物袋</button>
+			<button type="primary" class="add-cart-btn" @tap="addToCart">確認</button>
 		</view>
 	</modal>
 </template>
@@ -47,7 +36,7 @@
 <script>
 	import Modal from '@/components/modal/modal.vue'
 	import Actions from '../actions/actions.vue'
-	
+
 	export default {
 		name: 'ProductModal',
 		components: {
@@ -77,44 +66,51 @@
 		},
 		computed: {
 			getProductSelectedMaterials() {
-				if(!this.productData.is_single && this.productData.materials) {
-					let materials = []
-					this.productData.materials.forEach(({values}) => {
+				if (!this.productData.is_single && this.productData.itemOptionList) {
+					let itemOptionList = []
+					this.productData.itemOptionList.forEach(({
+						values
+					}) => {
 						values.forEach(value => {
-							if(value.is_selected) {
-								materials.push(value.name)
+							if (value.is_selected) {
+								itemOptionList.push(value.name)
 							}
 						})
 					})
-					return materials.length ? materials.join('，') : ''
+					return itemOptionList.length ? itemOptionList.join('，') : ''
 				}
 				return ''
 			}
 		},
 		methods: {
 			changeMaterialSelected(index, key) {
-				const currentMaterial = this.productData.materials[index].values[key]
-				if(!currentMaterial.is_exclusive) {
-					if(currentMaterial.is_selected) return
-					this.productData.materials[index].values.forEach(value => this.$set(value, 'is_selected', 0))
-					currentMaterial.is_selected = 1
-					this.productData.number = 1
-				} else {
-					currentMaterial.is_selected = !currentMaterial.is_selected
-					this.productData.number = 1
+				const currentMaterial = this.productData.optionsList[index].choiceList[key]
+				const currentCount = this.productData.optionsList[index].choiceList.filter(e => e.isSelected).length
+				const {
+					minSelection,
+					maxSelection
+				} = this.productData.optionsList[index]
+				if (currentMaterial.isSelected) {
+					this.$set(this.productData.optionsList[index].choiceList[key], "isSelected", false)
 				}
+				if (currentCount < maxSelection) {
+					this.$set(this.productData.optionsList[index].choiceList[key], "isSelected", true)
+				}
+				this.productData.number = 1
 			},
 			add() {
 				this.productData.number += 1
 			},
 			minus() {
-				if(this.productData.number == 1) {
+				if (this.productData.number == 1) {
 					return
 				}
 				this.productData.number -= 1
 			},
 			addToCart() {
-				const product = {...this.productData, 'materials_text': this.getProductSelectedMaterials}
+				const product = {
+					...this.productData
+				}
 				this.$emit('add-to-cart', product)
 			}
 		}
@@ -131,21 +127,21 @@
 		display: flex;
 		justify-content: flex-end;
 		z-index: 11;
-		
+
 		image {
 			width: 60rpx;
 			height: 60rpx;
-			
+
 			&:nth-child(1) {
 				margin-right: 30rpx;
 			}
 		}
 	}
-	
+
 	.swiper {
 		height: 426rpx;
 	}
-	
+
 	.content {
 		display: flex;
 		flex-direction: column;
@@ -153,28 +149,28 @@
 		color: $text-color-assist;
 		min-height: 1vh;
 		max-height: calc(100vh - 100rpx - 426rpx - 250rpx);
-		
+
 		.wrapper {
 			width: 100%;
 			height: 100%;
 			overflow: hidden;
 			padding: 30rpx 30rpx 20rpx;
 		}
-		
+
 		.title {
 			font-size: $font-size-extra-lg;
 			color: $text-color-base;
 			font-weight: bold;
 			margin-bottom: 10rpx;
 		}
-		
+
 		.labels {
 			display: flex;
 			font-size: 20rpx;
 			margin-bottom: 10rpx;
 			overflow: hidden;
 			flex-wrap: wrap;
-			
+
 			.label {
 				max-width: 40%;
 				padding: 6rpx 10rpx;
@@ -184,20 +180,21 @@
 				white-space: nowrap;
 			}
 		}
-		
+
 		.materials {
 			width: 80%;
 			margin-bottom: 20rpx;
-			
+			font-size: 35rpx;
+
 			.group-name {
 				padding: 10rpx 0;
 			}
-			
+
 			.values {
 				display: flex;
 				flex-wrap: wrap;
 				overflow: hidden;
-				
+
 				.value {
 					background-color: #f5f5f7;
 					color: $font-size-base;
@@ -208,7 +205,7 @@
 					margin-right: 20rpx;
 					margin-bottom: 20rpx;
 					border-radius: $border-radius-lg;
-					
+
 					&.selected {
 						background-color: $color-primary;
 						color: $bg-color-white;
@@ -217,7 +214,7 @@
 			}
 		}
 	}
-	
+
 	.bottom {
 		padding: 20rpx 40rpx;
 		display: flex;
@@ -227,20 +224,20 @@
 		background-color: $bg-color-white;
 		position: relative;
 		z-index: 11;
-		
+
 		.price-and-materials {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
 			overflow: hidden;
 			margin-right: 10rpx;
-			
+
 			.price {
 				color: $color-primary;
 				font-size: $font-size-extra-lg;
 				font-weight: bold;
 			}
-			
+
 			.materials {
 				font-size: $font-size-sm;
 				color: $text-color-assist;
@@ -250,7 +247,7 @@
 				overflow: hidden;
 			}
 		}
-		
+
 		.add-cart-btn {
 			margin-top: 20rpx;
 			font-size: $font-size-lg;

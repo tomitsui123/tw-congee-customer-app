@@ -196,5 +196,5 @@ export default {
 	"takeaway_time_immediately_show": "2019-10-20 13:14:29",
 	"pickup_time_period": "",
 	"trade_type": "JSAPI",
-	"remarks": "不打包"
+	"remarks": ""
 }

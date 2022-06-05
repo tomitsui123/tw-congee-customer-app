@@ -1,5 +1,5 @@
 <template>
-	<uni-transition :mode-class="['slide-left']" :styles="tranStyles" :show="show">
+	<uni-transition :mode-class="['slide-right']" :styles="tranStyles" :show="show">
 		<view class="d-flex flex-column overflow-hidden">
 			<view class="search-box">
 				<view class="search-input">
@@ -15,7 +15,7 @@
 				<template v-if="!result.length">
 					<view class="section">
 						<view class="header">
-							<view class="title">历史搜索</view>
+							<view class="title">搜索歷史</view>
 							<view class="subtitle">
 								<image src="/static/images/common/delete.png"></image>
 								<view>清除</view>
@@ -46,7 +46,7 @@
 								<image :src="item.images[0].url" class="pro-image"/>
 								<view class="pro-name">{{ item.name }}</view>
 							</view>
-							<view class="pro-price">￥{{ item.price }}</view>
+							<view class="pro-price">${{ item.price }}</view>
 						</view>
 					</view>
 				</template>
