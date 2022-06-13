@@ -31,9 +31,11 @@
 			...mapState(['tenant'])
 		},
 		async onLoad(options) {
+			console.log(options)
 			const tenantId = uni.getStorageSync("tenant_id")
+			console.log(options, tenantId)
 			if (options.tenant_id || tenantId) {
-				const data = await tenantService.getTenant(tenantId)
+				const data = await tenantService.getTenant(options.tenant_id || tenantId)
 				this.SET_TENANT({
 					...data
 				})

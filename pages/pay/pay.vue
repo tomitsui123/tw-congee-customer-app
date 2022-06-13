@@ -3,25 +3,20 @@
 		<view class="bg-white p-30 d-flex align-items-center justify-content-between mb-20">
 			<view>
 				<text v-if="!orderId">外賣</text>
-				<text v-else>枱號：{{2}}</text>
+				<text v-else>枱號：{{tableNumber}}</text>
 			</view>
 		</view>
-		<!-- <view class="bg-white p-30 mb-20">
-			<view class="font-size-medium font-weight-bold mb-30">取餐時間</view>
-			<view class="text-color-primary">冰淇淋/鲜食等产品无需等待，可立即向店员领取</view>
-		</view> -->
 		<view class="bg-white pt-30 mb-20">
 			<view class="font-size-medium font-weight-bold mb-30 pl-30">商品列表</view>
 			<list-cell arrow line-right>
-				<view class="w-100 d-flex align-items-center overflow-hidden">
-					<scroll-view class="flex-fill overflow-hidden" scroll-x>
-						<view class="w-100 d-flex align-items-center">
-							<image :src="item.image" class="pro-img" v-for="(item, index) in cart" :key="index"></image>
-							price
-						</view>
-					</scroll-view>
-					<view class="flex-shrink-0 ml-20">共{{ cartNum }}件</view>
+				<view class="w-100 d-flex align-items-center overflow-hidden" v-for="(item, index) in cart">
+					<view class="w-100 d-flex align-items-center">
+						<view class="flex-shrink-0">{{item.name}}</view>
+						<view class="flex-shrink-0">X {{item.number}}</view>
+					</view>
+					<view class="flex-shrink-0 ml-20">${{item.number * item.price}}</view>
 				</view>
+				<!-- <view class="flex-shrink-0 ml-20">共{{ cartNum }}件</view> -->
 			</list-cell>
 			<list-cell arrow last>
 				<view class="w-100 d-flex align-items-center justify-content-between overflow-hidden">
@@ -49,6 +44,7 @@
 
 <script>
 	import listCell from '@/components/list-cell/list-cell.vue'
+	import orderService from '@/api/orders.js'
 
 	export default {
 		components: {
@@ -58,12 +54,17 @@
 			return {
 				cart: uni.getStorageSync('cart'),
 				orderId: '',
+				tableNumber: ''
 			}
 		},
 		onLoad() {
 			const orderId = uni.getStorageSync('order_id')
 			if (orderId) {
-				this.orderId = uni.getStorageSync('order_id')
+				this.orderId = orderId
+			}
+			const tableNumber = uni.getStorageSync('table_number')
+			if (tableNumber) {
+				this.tableNumber = tableNumber
 			}
 		},
 		computed: {
@@ -78,14 +79,18 @@
 			}
 		},
 		methods: {
-			confirmOrder() {
+			async confirmOrder() {
 				uni.showLoading({
 					title: '正在落單...',
 					mask: true
 				})
 				console.log('confirm order')
+				const tenantId = uni.getStorageSync('tenant_id')
+				const orderId = uni.getStorageSync('order_id')
+				const cart = uni.getStorageSync('cart')
 				try {
 					// TODO: send data to the backend
+					await orderService.commitOrder(orderId, tenantId, cart)
 					setTimeout(async () => {
 						uni.hideLoading()
 						uni.showToast({

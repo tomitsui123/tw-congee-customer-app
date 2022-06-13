@@ -124,13 +124,9 @@
 				}
 			},
 			handleAddToCart(product) {
-				const index = this.cart.findIndex(item => {
-					if (!product.is_single) {
-						return (item.id == product.itemId)
-					} else {
-						return item.id === product.itemId
-					}
-				})
+				const index = this.cart.findIndex(item => item.id === product.id)
+				console.log(product, this.cart, index)
+
 				if (index > -1) {
 					this.cart[index].number += (product.number || 1)
 					return
@@ -144,13 +140,10 @@
 					is_single: product.is_single,
 				})
 			},
-			handleMinusFromCart(product) { //从购物车减商品
-				let index
-				if (product.is_single) {
-					index = this.cart.findIndex(item => item.id == product.itemId)
-				} else {
-					index = this.cart.findIndex(item => (item.id == product.itemId) && (item.materials_text == product
-						.materials_text))
+			handleMinusFromCart(product) {
+				let index = this.cart.findIndex(item => item.id == product.id)
+				if (index < 0) {
+					return 
 				}
 				this.cart[index].number -= 1
 				if (this.cart[index].number <= 0) {

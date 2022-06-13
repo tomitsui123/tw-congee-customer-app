@@ -4,6 +4,7 @@ import {
 } from '@/config.js'
 
 const getTenant = async (tenantId) => {
+	console.log('tenant id', tenantId)
 	uni.showLoading({
 		title: '加戴中...',
 		mask: true

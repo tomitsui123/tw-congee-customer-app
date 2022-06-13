@@ -1,6 +1,6 @@
 <template>
 	<scroll-view scroll-y style="height: 100%;">
-		<view v-if="order" />
+		<view v-if="!order" />
 		<view v-else class="container">
 			<view class="content-container">
 				<view style="text-align: center;">

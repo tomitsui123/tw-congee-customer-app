@@ -22,6 +22,16 @@ const getOrder = async (orderId, tenantId) => {
 	}
 	uni.hideLoading()
 }
+
+const commitOrder = async (orderId, tenantId, cart) => {
+	const url = `/customer/order/${orderId}/tenant/${tenantId}`
+	uni.showLoading({
+		title: '加戴中...',
+		mask: true
+	})
+	uni.hideLoading()
+}
 export default {
-	getOrder
+	getOrder,
+	commitOrder
 }
