@@ -37,7 +37,7 @@
 				合計：<text class="font-size-lg font-weight-bold">${{ cartAmount }}</text>
 			</view>
 			<button @click="confirmOrder" v-if="orderId" type="primary">確定</button>
-			<button @click="scanToOrder" v-else type="primary">掃描QR Code</button>
+			<button @click="scanToOrder" v-else type="primary">外賣落單</button>
 		</view>
 	</view>
 </template>
@@ -89,25 +89,39 @@
 				const orderId = uni.getStorageSync('order_id')
 				const cart = uni.getStorageSync('cart')
 				try {
-					// TODO: send data to the backend
 					await orderService.commitOrder(orderId, tenantId, cart)
-					setTimeout(async () => {
-						uni.hideLoading()
-						uni.showToast({
-							title: '落單成功'
-						})
-						uni.switchTab({
-							url: "/pages/order/order"
-						})
-					}, 2000)
+					uni.switchTab({
+						url: '/pages/order/order'
+					})
+					uni.setStorageSync("cart", "")
 				} catch (e) {
+					if (e.message === '帳單已逾時') {
+						setTimeout(async () => {
+							uni.showToast({
+								title: "帳單已逾時，請重新戴入"
+							})
+							uni.switchTab({
+								url: "/pages/home/home"
+							})
+						}, 3000)
+					}
 					console.error(e)
 					uni.hideLoading()
 				}
 
 			},
-			scanToOrder() {
-				console.log('scan to order')
+			async scanToOrder() {
+				const tenantId = uni.getStorageSync('tenant_id')
+				const cart = uni.getStorageSync('cart')
+				const {
+					data
+				} = await orderService.createTakeawayOrder(tenantId, cart)
+				console.log(data.data.orderId)
+				uni.setStorageSync("order_id", data.data.orderId)
+				// console.log('scan to order')
+				// uni.switchTab({
+				// 	url: '/pages/order/order'
+				// })
 			}
 		}
 	}
