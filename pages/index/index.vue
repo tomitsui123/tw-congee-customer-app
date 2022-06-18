@@ -1,9 +1,13 @@
 <template>
 	<view class="container">
 		<view class="header">
-			<view v-if="orderId" class="notices">
+			<view v-if="tableNumber" class="notices">
 				枱號：{{tableNumber}}
 			</view>
+			<view v-else>
+				外賣
+			</view>
+
 		</view>
 		<view class="main">
 			<scroll-view class="menu-bar" scroll-y scroll-with-animation>
@@ -50,6 +54,7 @@
 </template>
 
 <script>
+	import md5 from 'md5'
 	import {
 		mapState,
 		mapMutations
@@ -93,21 +98,34 @@
 				}, 0)
 			}
 		},
+		onShow() {
+			const isFinished = uni.getStorageSync("isFinished")
+			if (isFinished) {
+				setTimeout(() => {
+					uni.showToast({
+						title: '帳單已逾時',
+						mask: true
+					})
+					uni.switchTab({
+						url: '/pages/order/order'
+					})
+				}, 1000)
+			}
+		},
 		async onLoad(options) {
 			const tableNumber = uni.getStorageSync('table_number')
 			const orderId = uni.getStorageSync("order_id")
 			const tenantId = uni.getStorageSync("tenant_id")
+			const cart = uni.getStorageSync("cart")
+
 			this.tableNumber = tableNumber
 			this.orderId = orderId
 			this.tenantId = tenantId
+			this.cart = []
+			if (cart) {
+				this.cart = cart
+			}
 			let data = await menuService.getMenu(tenantId)
-			data = data.map(e => {
-				e.products = e.products.map(p => {
-					p.is_single = p.optionsList && p.optionsList.length > 0
-					return p
-				})
-				return e
-			})
 			this.categories = data
 			this.currentCategoryId = this.categories.length && this.categories[0].id
 			this.$nextTick(() => this.calcSize())
@@ -124,26 +142,36 @@
 				}
 			},
 			handleAddToCart(product) {
-				const index = this.cart.findIndex(item => item.id === product.id)
-				console.log(product, this.cart, index)
-
+				console.log('133', product)
+				const index = this.cart.findIndex(item => {
+					let itemCode = ''
+					if (item.selectedOptionList) {
+						itemCode = md5(item.selectedOptionList)
+					}
+					let productCode = ''
+					if (product.selectedOptionList) {
+						productCode = md5(product.selectedOptionList)
+					}
+					return (item.itemId === product.itemId) && itemCode === productCode
+				})
 				if (index > -1) {
 					this.cart[index].number += (product.number || 1)
 					return
 				}
 				this.cart.push({
-					id: product.itemId,
-					cate_id: product.categoryId,
-					name: product.displayName,
-					price: product.price,
+					itemId: product.itemId,
+					cate_id: product.categoryId || product.cate_id,
+					name: product.displayName || product.name,
+					originalPrice: product.price,
+					price: product.totalPrice || product.originalPrice || product.price,
 					number: product.number || 1,
-					is_single: product.is_single,
+					selectedOptionList: product.selectedOptionList
 				})
 			},
 			handleMinusFromCart(product) {
 				let index = this.cart.findIndex(item => item.id == product.id)
 				if (index < 0) {
-					return 
+					return
 				}
 				this.cart[index].number -= 1
 				if (this.cart[index].number <= 0) {
@@ -159,7 +187,6 @@
 				}
 			},
 			handleAddToCartInModal(product) {
-				console.log(product)
 				this.handleAddToCart(product)
 				this.closeProductDetailModal()
 			},
@@ -194,6 +221,7 @@
 				view.fields({
 					size: true
 				}, data => {
+					if (!data) return
 					h += Math.floor(data.height)
 				}).exec()
 				this.categories.forEach(item => {

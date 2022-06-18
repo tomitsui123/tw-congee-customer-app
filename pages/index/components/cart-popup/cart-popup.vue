@@ -14,13 +14,12 @@
 				<view class="wrapper">
 					<view class="list">
 						<view class="item" v-for="(item, index) in cart" :key="index">
-							<!-- <view class="left">
-								<image :src="item.image" mode="widthFix" class="image"></image>
-							</view> -->
 							<view class="right">
 								<view class="name-and-materials">
-									<view class="name">{{ item.name }}</view>
-									<view class="materials" v-if="item.materials_text">{{ item.materials_text }}</view>
+									<view class="name">{{ item.name }} ${{item.originalPrice}}</view>
+									<view class="materials">
+										{{ item.selectedOptionList && item.selectedOptionList.map(e => `${e.displayName} $${e.price}`).join('|') }}
+									</view>
 								</view>
 								<view class="price-and-actions">
 									<view class="price">${{ item.price }}</view>

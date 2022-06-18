@@ -5,11 +5,9 @@ import {
 
 const getMenu = async (tenantId) => {
 	const url = `/customer/menu/${tenantId}`
-	console.log(apiUrl + url)
 	const {
 		data
 	} = await axios.get(apiUrl + url)
-	console.log(data)
 	return data.data
 }
 

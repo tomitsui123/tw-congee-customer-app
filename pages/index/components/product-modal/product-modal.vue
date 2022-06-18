@@ -8,7 +8,8 @@
 				<view class="title">{{ productData.displayName }}</view>
 				<view class="materials" v-for="(material, index) in productData.optionsList" :key="index">
 					<view class="group-name">{{ material.displayName }} {{material.minSelection > 0 ? "必選": ""}}
-						{{material.maxSelection > 0 ? `最多可選${material.maxSelection}個` : ""}}</view>
+						{{material.maxSelection > 0 ? `最多可選${material.maxSelection}個` : ""}}
+					</view>
 					<view class="values">
 						<view class="value" :class="{selected: value.isSelected}"
 							@tap="changeMaterialSelected(index, key)" v-for="(value, key) in material.choiceList"
@@ -22,7 +23,7 @@
 		<view class="bottom" :style="{height: !productData.is_single ? '250rpx' : '200rpx'}">
 			<view class="d-flex align-items-center">
 				<view class="price-and-materials">
-					<view class="price">${{ productData.price }}</view>
+					<view class="price">${{ productData.totalPrice }}</view>
 					<view class="materials" v-show="getProductSelectedMaterials">{{ getProductSelectedMaterials }}
 					</view>
 				</view>
@@ -61,6 +62,7 @@
 		watch: {
 			product(val) {
 				this.productData = JSON.parse(JSON.stringify(val))
+				this.productData.totalPrice = this.productData.price
 				this.$set(this.productData, 'number', 1)
 			}
 		},
@@ -84,6 +86,9 @@
 		},
 		methods: {
 			changeMaterialSelected(index, key) {
+				const {
+					id: modifierGroupId
+				} = this.productData.optionsList[index]
 				const currentMaterial = this.productData.optionsList[index].choiceList[key]
 				const currentCount = this.productData.optionsList[index].choiceList.filter(e => e.isSelected).length
 				const {
@@ -92,11 +97,26 @@
 				} = this.productData.optionsList[index]
 				if (currentMaterial.isSelected) {
 					this.$set(this.productData.optionsList[index].choiceList[key], "isSelected", false)
+					if (this.productData.selectedOptionList) {
+						this.productData.selectedOptionList = this.productData.selectedOptionList.filter(e => e
+							.modifierId === this.productData.optionsList[index].choiceList[key].optionId && e
+							.optionId === modifierGroupId)
+					}
+					this.productData.totalPrice -= currentMaterial.price
 				}
 				if (currentCount < maxSelection) {
 					this.$set(this.productData.optionsList[index].choiceList[key], "isSelected", true)
+					if (!this.productData.selectedOptionList) this.productData.selectedOptionList = []
+					this.productData.selectedOptionList.push({
+						optionId: this.productData.optionsList[index].choiceList[key].optionId,
+						optionGroupId: modifierGroupId,
+						displayName: this.productData.optionsList[index].choiceList[key].displayName,
+						price: this.productData.optionsList[index].choiceList[key].price
+					})
+					this.productData.totalPrice += currentMaterial.price
 				}
 				this.productData.number = 1
+				console.log(this.productData)
 			},
 			add() {
 				this.productData.number += 1

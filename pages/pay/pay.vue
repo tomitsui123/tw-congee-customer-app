@@ -8,21 +8,20 @@
 		</view>
 		<view class="bg-white pt-30 mb-20">
 			<view class="font-size-medium font-weight-bold mb-30 pl-30">商品列表</view>
-			<list-cell arrow line-right>
-				<view class="w-100 d-flex align-items-center overflow-hidden" v-for="(item, index) in cart">
-					<view class="w-100 d-flex align-items-center">
-						<view class="flex-shrink-0">{{item.name}}</view>
-						<view class="flex-shrink-0">X {{item.number}}</view>
+			<list-cell line-right v-for="(item, index) in cart">
+				<view class="w-100 d-flex align-items-center overflow-hidden">
+					<view class="w-100 align-items-center">
+						<view class="w-100 d-flex align-items-center">
+							<view class="d-flex align-items-center">
+								<view class="flex-shrink-0">{{item.name}} (原價${{item.originalPrice}}) </view>
+								<view class="flex-shrink-0 "> X {{item.number}}</view>
+							</view>
+						</view>
+						<view class="selectedOption" v-if="item.selectedOptionList">
+							{{ item.selectedOptionList.map(e => `${e.displayName} +$${e.price}`).join('|')}}
+						</view>
 					</view>
 					<view class="flex-shrink-0 ml-20">${{item.number * item.price}}</view>
-				</view>
-				<!-- <view class="flex-shrink-0 ml-20">共{{ cartNum }}件</view> -->
-			</list-cell>
-			<list-cell arrow last>
-				<view class="w-100 d-flex align-items-center justify-content-between overflow-hidden">
-					<view class="flex-shrink-0">備注</view>
-					<navigator hover-class="none" class="flex-fill ml-40 text-truncate text-right" open-type="navigate"
-						url="/pages/pay/remark">{{ remark }}></navigator>
 				</view>
 			</list-cell>
 			<list-cell last>
@@ -113,15 +112,19 @@
 			async scanToOrder() {
 				const tenantId = uni.getStorageSync('tenant_id')
 				const cart = uni.getStorageSync('cart')
+				uni.showLoading({
+					title: '正在生成訂單',
+					mask: true
+				})
 				const {
 					data
 				} = await orderService.createTakeawayOrder(tenantId, cart)
-				console.log(data.data.orderId)
+				uni.hideLoading()
 				uni.setStorageSync("order_id", data.data.orderId)
-				// console.log('scan to order')
-				// uni.switchTab({
-				// 	url: '/pages/order/order'
-				// })
+				uni.setStorageSync('cart', '')
+				uni.switchTab({
+					url: '/pages/order/order'
+				})
 			}
 		}
 	}
@@ -177,5 +180,10 @@
 			border-radius: 0 !important;
 			font-size: $font-size-lg;
 		}
+	}
+
+	.selectedOption {
+		font-size: $font-size-sm;
+		color: $text-color-assist;
 	}
 </style>

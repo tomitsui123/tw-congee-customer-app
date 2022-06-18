@@ -29,10 +29,6 @@ const commitOrder = async (orderId, tenantId, cart) => {
 		title: '加戴中...',
 		mask: true
 	})
-	cart = cart.map(e => {
-		e.itemId = e.id
-		return e
-	})
 	try {
 		const data = await axios.put(url, {
 			cart
@@ -41,6 +37,7 @@ const commitOrder = async (orderId, tenantId, cart) => {
 		console.log('e', e)
 		setTimeout(async () => {
 			uni.setStorageSync("order_id", "")
+			uni.setStorageSync("table_number", "")
 			uni.showToast({
 				title: "帳單已逾時，請重新戴入"
 			})
@@ -54,10 +51,6 @@ const commitOrder = async (orderId, tenantId, cart) => {
 
 const createTakeawayOrder = async (tenantId, cart) => {
 	let url = `${apiUrl}/customer/order/tenant/${tenantId}`
-	cart = cart.map(e => {
-		e.itemId = e.id
-		return e
-	})
 	const resp = await axios.post(url, {
 		cart,
 	})

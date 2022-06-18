@@ -12,7 +12,7 @@
 		<view v-else class="content">
 			<view class="section-1">
 				<navigator class="item" open-type="switchTab" url="/pages/index/index" hover-class="none">
-					<view class="button-text">開始{{orderId ? "" : "外賣"}}點單</view>
+					<view class="button-text">開始點單</view>
 				</navigator>
 			</view>
 		</view>

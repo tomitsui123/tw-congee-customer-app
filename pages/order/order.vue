@@ -4,7 +4,7 @@
 		<view v-else class="container">
 			<view class="content-container">
 				<view style="text-align: center;">
-					<h1>訂單({{order.statusText}})</h1>
+					<h1>{{order.tableId === 'TAKEAWAY' ? '外賣' : ''}}訂單({{order.statusText}})</h1>
 				</view>
 			</view>
 			<view class="content-container">
@@ -14,14 +14,13 @@
 					<div class="product-item" v-for="item in order.details">
 						<div class="product-info">
 							<div class="row-header">
-								<uni-text>{{item.displayName}}</uni-text>
-								<uni-text class="price"><span>${{item.afterPrice}}</span></uni-text>
+								<uni-text>{{`${item.displayName}    (原價$${item.price})    X${item.number}`}}</uni-text>
+								<uni-text class="price"><span>${{item.afterPrice * item.number}}</span></uni-text>
 							</div>
 							<div class="row-header">
 								<div class="product-option">
-									{{item.selectedOptionList.map(e => e.displayName).join(" | ")}}
+									{{item.selectedOptionList.map(e => `${e.optionName} $${e.price}`).join(" | ")}}
 								</div>
-								<uni-text class="product-count"><span>x{{item.number}}</span></uni-text>
 							</div>
 						</div>
 					</div>
@@ -87,6 +86,9 @@
 				const data = await orderService.getOrder(orderId, tenantId)
 				this.order = {
 					...data
+				}
+				if (data.status === 'PAID') {
+					uni.setStorageSync("isFinished", true)
 				}
 			} catch (e) {
 				console.error(e)

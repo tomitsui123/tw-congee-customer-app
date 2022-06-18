@@ -1,6 +1,7 @@
 <template>
 	<view @touchmove.stop.prevent>
-		<view class="modal-box" :style="{width:width,padding:padding,borderRadius:radius}" :class="[(fadein || show)?'modal-normal':'modal-scale',show?'modal-show':'']">
+		<view class="modal-box" :style="{width:width,padding:padding,borderRadius:radius}"
+			:class="[(fadein || show)?'modal-normal':'modal-scale',show?'modal-show':'']">
 			<view v-if="custom">
 				<slot></slot>
 			</view>
@@ -11,15 +12,14 @@
 				</view>
 				<view class="modalBtn-box" :class="[button.length!=2?'flex-column':'']">
 					<block v-for="(item,index) in button" :key="index">
-						<button class="modal-btn" 
-								:class="[
+						<button class="modal-btn" :class="[
 										''+(item.type || 'primary')+(item.plain?'-outline':''),
 										button.length!=2?'btn-width':'',
 										button.length>2?'mbtm':'',
 										shape=='circle'?'circle-btn':'',
 										'btn-' + (item.size || 'default'),										
-									]"
-								:hover-class="''+(item.plain?'outline':(item.type || 'primary'))+'-hover'" :data-index="index" @tap="handleClick">{{item.text || "确定"}}</button>
+									]" :hover-class="''+(item.plain?'outline':(item.type || 'primary'))+'-hover'" :data-index="index"
+							@tap="handleClick">{{item.text || "確定"}}</button>
 					</block>
 				</view>
 			</view>
@@ -214,15 +214,15 @@
 		overflow: visible;
 		margin-left: 0;
 		margin-right: 0;
-		
+
 		&.btn-default {
 			font-size: 28rpx;
 		}
-		
+
 		&.btn-lg {
 			font-size: 32rpx;
 		}
-		
+
 		&.btn-sm {
 			font-size: 24rpx;
 		}
