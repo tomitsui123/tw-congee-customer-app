@@ -18,11 +18,16 @@
 								<view class="name-and-materials">
 									<view class="name">{{ item.name }} ${{item.originalPrice}}</view>
 									<view class="materials">
-										{{ item.selectedOptionList && item.selectedOptionList.map(e => `${e.displayName} $${e.price}`).join('|') }}
+										{{ item.selectedOptionList && item.selectedOptionList.map(e => `${e.displayName} $${e.price}`).join(' | ') }}
+									</view>
+									<view class="materials" v-if="Object.keys(item.discount).length > 0">
+										{{item.discount.description}}(${{item.discount.price}})
 									</view>
 								</view>
 								<view class="price-and-actions">
-									<view class="price">${{ item.price }}</view>
+									<view v-if="Object.keys(item.discount).length > 0" class="price">
+										${{ item.price + item.discount.price }}</view>
+									<view v-else class="price">${{ item.price  }}</view>
 									<actions :number="item.number" @add="add(item)" @minus="minus(item)"></actions>
 								</view>
 							</view>

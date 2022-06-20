@@ -16,26 +16,26 @@ function formatTime(time) {
 }
 
 function formatDateTime(date, fmt = 'yyyy-MM-dd hh:mm:ss') {
-	if(!date) {
+	if (!date) {
 		return ''
 	}
-    if (typeof (date) === 'number') {
-        date = new Date(date * 1000)
-    }
-    var o = {
-        "M+": date.getMonth() + 1, //月份
-        "d+": date.getDate(), //日
-        "h+": date.getHours(), //小时
-        "m+": date.getMinutes(), //分
-        "s+": date.getSeconds(), //秒
-        "q+": Math.floor((date.getMonth() + 3) / 3), //季度
-        "S": date.getMilliseconds() //毫秒
-    }
-    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length))
-    for (var k in o)
-        if (new RegExp("(" + k + ")").test(fmt))
-            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)))
-    return fmt
+	if (typeof(date) === 'number') {
+		date = new Date(date * 1000)
+	}
+	var o = {
+		"M+": date.getMonth() + 1, //月份
+		"d+": date.getDate(), //日
+		"h+": date.getHours(), //小时
+		"m+": date.getMinutes(), //分
+		"s+": date.getSeconds(), //秒
+		"q+": Math.floor((date.getMonth() + 3) / 3), //季度
+		"S": date.getMilliseconds() //毫秒
+	}
+	if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length))
+	for (var k in o)
+		if (new RegExp("(" + k + ")").test(fmt))
+			fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)))
+	return fmt
 }
 
 function formatLocation(longitude, latitude) {
@@ -90,8 +90,55 @@ var dateUtils = {
 	}
 };
 
-const hexToRgba = (hex, opacity) => {	//16进制颜色转rgba
-	return "rgba(" + parseInt("0x" + hex.slice(1, 3)) + "," + parseInt("0x" + hex.slice(3, 5)) + "," + parseInt("0x" + hex.slice(5, 7)) + "," + opacity + ")"
+const hexToRgba = (hex, opacity) => { //16进制颜色转rgba
+	return "rgba(" + parseInt("0x" + hex.slice(1, 3)) + "," + parseInt("0x" + hex.slice(3, 5)) + "," + parseInt(
+		"0x" + hex.slice(5, 7)) + "," + opacity + ")"
+}
+
+function checkLogic(selectedItemList, logicObject) {
+	let isFulfill
+	const logicObjectList = Object.keys(logicObject)
+	for (let i = 0; i < logicObjectList.length; i++) {
+		const targetArray = logicObject[logicObjectList[i]]
+		for (let j = 0; j < targetArray.length; j++) {
+			const isString = typeof targetArray[j] === 'string'
+			if (isString) {
+				if (logicObjectList[i] === 'or') {
+					const idx = selectedItemList.findIndex(e => targetArray.includes(e))
+					if (idx > -1) {
+						selectedItemList.splice(idx, 1)
+						isFulfill = true
+						break
+					} else {
+						isFulfill = false
+					}
+				} else {
+					let t = [...targetArray]
+					for (let k = 0; k < selectedItemList.length; k++) {
+						const selectedItem = selectedItemList[k]
+						const idx = t.findIndex(e => e === selectedItem)
+						if (idx > -1) {
+							t.splice(idx, 1)
+						}
+						isFulfill = t.length === 0
+					}
+				}
+			} else {
+				if (typeof isFulfill === 'boolean' && isFulfill === false) {
+					if (logicObjectList[i] === 'and') {
+						const temp = checkLogic(selectedItemList, targetArray[j])
+						isFulfill = isFulfill && temp
+					} else {
+						const temp = checkLogic(selectedItemList, targetArray[j])
+						isFulfill = isFulfill || temp
+					}
+				} else {
+					isFulfill = checkLogic(selectedItemList, targetArray[i])
+				}
+			}
+		}
+	}
+	return isFulfill
 }
 
 module.exports = {
@@ -99,5 +146,6 @@ module.exports = {
 	formatDateTime,
 	formatLocation,
 	dateUtils,
-	hexToRgba
+	hexToRgba,
+	checkLogic
 }

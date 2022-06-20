@@ -18,10 +18,15 @@
 							</view>
 						</view>
 						<view class="selectedOption" v-if="item.selectedOptionList">
-							{{ item.selectedOptionList.map(e => `${e.displayName} +$${e.price}`).join('|')}}
+							{{ item.selectedOptionList.map(e => `${e.displayName} +$${e.price}`).join(' | ')}}
+						</view>
+						<view class="selectedOption" v-if="Object.keys(item.discount).length > 0">
+							{{item.discount.description}}(${{item.discount.price}})
 						</view>
 					</view>
-					<view class="flex-shrink-0 ml-20">${{item.number * item.price}}</view>
+					<view v-if="Object.keys(item.discount).length > 0" class="flex-shrink-0 ml-20">
+						${{item.number * (item.price + item.discount.price)}}</view>
+					<view v-else class="flex-shrink-0 ml-20">${{item.number * item.price}}</view>
 				</view>
 			</list-cell>
 			<list-cell last>
@@ -71,7 +76,12 @@
 				return this.cart.reduce((acc, cur) => acc + cur.number, 0)
 			},
 			cartAmount() {
-				return this.cart.reduce((acc, cur) => acc + cur.number * cur.price, 0)
+				return this.cart.reduce((acc, cur) => {
+					if (Object.keys(cur.discount).length > 0) {
+					return acc + cur.number * (cur.price + cur.discount.price)	
+					}
+					return acc + cur.number * cur.price
+				}, 0)
 			},
 			remark() {
 				return this.$store.state.remark

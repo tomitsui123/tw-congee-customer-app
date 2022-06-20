@@ -22,6 +22,11 @@
 									{{item.selectedOptionList.map(e => `${e.optionName} $${e.price}`).join(" | ")}}
 								</div>
 							</div>
+							<div class="row-header">
+								<div class="product-option" v-if="Object.keys(item.discount).length > 0">
+									{{item.discount.description}}(${{item.discount.price}})
+								</div>
+							</div>
 						</div>
 					</div>
 				</view>

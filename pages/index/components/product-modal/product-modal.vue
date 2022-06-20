@@ -103,8 +103,7 @@
 							.optionId === modifierGroupId)
 					}
 					this.productData.totalPrice -= currentMaterial.price
-				}
-				if (currentCount < maxSelection) {
+				} else if (currentCount < maxSelection) {
 					this.$set(this.productData.optionsList[index].choiceList[key], "isSelected", true)
 					if (!this.productData.selectedOptionList) this.productData.selectedOptionList = []
 					this.productData.selectedOptionList.push({
@@ -115,6 +114,7 @@
 					})
 					this.productData.totalPrice += currentMaterial.price
 				}
+				console.log('hihihihihi', this.productData.optionsList[index].choiceList[key])
 				this.productData.number = 1
 				console.log(this.productData)
 			},
@@ -128,6 +128,7 @@
 				this.productData.number -= 1
 			},
 			addToCart() {
+				// TODO: not allow to add if the required option has not been selected.
 				const product = {
 					...this.productData
 				}

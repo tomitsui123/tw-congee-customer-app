@@ -33,7 +33,7 @@
 									<view class="description">{{ product.description }}</view>
 									<view class="price">
 										<view>${{ product.price }}</view>
-										<actions :materials-btn="product.is_single"
+										<actions :materials-btn="product.optionsList && product.optionsList.length > 0"
 											@materials="showProductDetailModal(product)"
 											:number="productCartNum(product.itemId)" @add="handleAddToCart(product)"
 											@minus="handleMinusFromCart(product)" />
@@ -66,6 +66,9 @@
 	import Search from './components/search/search.vue'
 
 	import menuService from '@/api/menu.js'
+	import {
+		checkLogic
+	} from '@/common/util'
 
 	export default {
 		components: {
@@ -90,8 +93,8 @@
 		computed: {
 			...mapState(['orderType', 'address', 'tenant']),
 			productCartNum() {
-				return id => this.cart.reduce((acc, cur) => {
-					if (cur.id === id) {
+				return itemId => this.cart.reduce((acc, cur) => {
+					if (cur.itemId === itemId) {
 						return acc += cur.number
 					}
 					return acc
@@ -112,6 +115,13 @@
 				}, 1000)
 			}
 		},
+		onShow() {
+			const cart = uni.getStorageSync("cart")
+			this.cart = []
+			if (cart) {
+				this.cart = cart
+			}
+		},
 		async onLoad(options) {
 			const tableNumber = uni.getStorageSync('table_number')
 			const orderId = uni.getStorageSync("order_id")
@@ -122,6 +132,7 @@
 			this.orderId = orderId
 			this.tenantId = tenantId
 			this.cart = []
+			console.log(this.cart, cart, 'herererer')
 			if (cart) {
 				this.cart = cart
 			}
@@ -143,6 +154,31 @@
 			},
 			handleAddToCart(product) {
 				console.log('133', product)
+				product.discount = product.condition.reduce((acc, cur) => {
+					if (!product.selectedOptionList || product.selectedOptionList.length === 0) return acc
+					const selectedOptionList = product.selectedOptionList.map(e1 => e1.optionGroupId)
+					const {
+						condition
+					} = cur
+					if (checkLogic(selectedOptionList, condition)) {
+						if (Object.keys(acc).length === 0) {
+							return {
+								description: cur.description,
+								price: cur.price,
+								id: cur.id
+							}
+						}
+						if (Object.keys(acc).length > 0 && acc.price < cur.price) {
+							return {
+								description: cur.description,
+								price: cur.price,
+								id: cur.id
+							}
+						}
+					}
+					return acc
+				}, {})
+				console.log(product)
 				const index = this.cart.findIndex(item => {
 					let itemCode = ''
 					if (item.selectedOptionList) {
@@ -163,9 +199,11 @@
 					cate_id: product.categoryId || product.cate_id,
 					name: product.displayName || product.name,
 					originalPrice: product.price,
-					price: product.totalPrice || product.originalPrice || product.price,
+					price: (product.totalPrice || product.originalPrice || product.price),
 					number: product.number || 1,
-					selectedOptionList: product.selectedOptionList
+					selectedOptionList: product.selectedOptionList,
+					discount: product.discount,
+					condition: product.condition
 				})
 			},
 			handleMinusFromCart(product) {

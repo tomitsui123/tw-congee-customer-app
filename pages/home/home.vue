@@ -10,11 +10,11 @@
 			<h1 class="header">沒有資料</h1>
 		</view>
 		<view v-else class="content">
-			<view class="section-1">
-				<navigator class="item" open-type="switchTab" url="/pages/index/index" hover-class="none">
+			<button class="section-1" @tap="startOrder">
+				<view class="item">
 					<view class="button-text">開始點單</view>
-				</navigator>
-			</view>
+				</view>
+			</button>
 		</view>
 	</view>
 </template>
@@ -31,10 +31,13 @@
 			...mapState(['tenant'])
 		},
 		async onLoad(options) {
-			console.log(options)
+			const isFinished = uni.getStorageSync('isFinished')
+			this.isFinished = isFinished
 			const tenantId = uni.getStorageSync("tenant_id")
-			console.log(options, tenantId)
 			if (options.tenant_id || tenantId) {
+				if (options.tenant_id !== tenantId) {
+					uni.setStorageSync("cart", "")
+				}
 				const data = await tenantService.getTenant(options.tenant_id || tenantId)
 				this.SET_TENANT({
 					...data
@@ -55,6 +58,15 @@
 		},
 		methods: {
 			...mapMutations(['SET_TENANT']),
+			startOrder() {
+				if (this.isFinished) {
+					uni.setStorageSync('order_id', '')
+					uni.setStorageSync('isFinished', false)
+				}
+				uni.switchTab({
+					url: '/pages/index/index'
+				})
+			}
 		}
 	}
 </script>
