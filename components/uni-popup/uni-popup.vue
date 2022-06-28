@@ -211,6 +211,7 @@
 <style lang="scss" scoped>
 	.uni-popup {
 		position: fixed;
+		height: 100%;
 		/* #ifndef APP-NVUE */
 		z-index: 994;
 		/* #endif */
@@ -273,6 +274,8 @@
 		padding-bottom: constant(safe-area-inset-bottom);
 		padding-bottom: env(safe-area-inset-bottom);
 		/* #endif */
+		height: 100%;
+		width: 80%;
 	}
 
 	.content-ani {

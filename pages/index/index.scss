@@ -1,3 +1,15 @@
+.category-container {
+	display: flex;
+	flex-direction: column;
+}
+.category-item {
+	width: 100%;
+	font-size: 5vw;
+	text-align: center;
+	padding: 100px;
+	border-radius: 30px;
+	border: 1px black solid;
+}
 .container {
 	background-color: $bg-color-white;
 	display: flex;
@@ -104,11 +116,11 @@
 	}
 
 	.notices {
-		height: 60rpx;
-		display: flex;
-		align-items: stretch;
+		text-align: center;
+		align-items: center;
 		padding: 10rpx 40rpx;
-		font-size: $font-size-sm;
+		margin: 10rpx;
+		font-size: 50px;
 		color: $text-color-assist;
 		box-shadow: $box-shadow;
 		

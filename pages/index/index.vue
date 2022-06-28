@@ -1,15 +1,22 @@
 <template>
 	<view class="container">
 		<view class="header">
-			<view v-if="tableNumber" class="notices">
-				枱號：{{tableNumber}}
+			<view class="notices">
+				<text v-if="tableNumber">
+					枱號：{{tableNumber}}
+				</text>
+				<text v-else>
+					外賣
+				</text>
 			</view>
-			<view v-else>
-				外賣
-			</view>
-
+			<scroll-view class="category-container" scroll-y scroll-with-animation>
+				<view @click="goToItemList(category)" class="category-item" v-for="(category, index) in categories"
+					:key="index" :id="`products-${category.id}`">
+					{{category.name}}
+				</view>
+			</scroll-view>
 		</view>
-		<view class="main">
+		<!-- <view class="main">
 			<scroll-view class="menu-bar" scroll-y scroll-with-animation>
 				<view class="wrapper">
 					<view class="menu-item" @tap="handleMenuSelected(category.id)"
@@ -45,15 +52,42 @@
 				</view>
 			</scroll-view>
 		</view>
+		 -->
 		<product-modal :product="product" :visible="productModalVisible" @cancel="closeProductDetailModal"
 			@add-to-cart="handleAddToCartInModal" />
 		<cart-bar :cart="cart" @add="handleAddToCart" @minus="handleMinusFromCart" @clear="clearCart" @pay="pay" />
 		<search :show="showSearch" :categories="categories" @hide="showSearch=false" @choose="showProductDetailModal">
 		</search>
+		<view>
+			<uni-popup style="height: 100%;" ref="popup" background-color="#fff" @change="change">
+				<view class="popup-content popup-height">
+					<scroll-view class="product-section" scroll-y scroll-with-animation :scroll-top="productsScrollTop">
+						<view class="products">
+							<view class="product" v-for="(product, key) in selectedCategory.products" :key="key"
+								@tap="showProductDetailModal(product)">
+								<view class="content">
+									<view class="name">{{ product.displayName }}</view>
+									<view class="description">{{ product.description }}</view>
+									<view class="price">
+										<view>${{ product.price }}</view>
+										<actions :materials-btn="product.optionsList && product.optionsList.length > 0"
+											@materials="showProductDetailModal(product)"
+											:number="productCartNum(product.itemId)" @add="handleAddToCart(product)"
+											@minus="handleMinusFromCart(product)" />
+									</view>
+								</view>
+							</view>
+						</view>
+
+					</scroll-view>
+				</view>
+			</uni-popup>
+		</view>
 	</view>
 </template>
 
 <script>
+	import uniPopup from '@/components/uni-popup/uni-popup.vue'
 	import md5 from 'md5'
 	import {
 		mapState,
@@ -76,7 +110,8 @@
 			CartBar,
 			ProductModal,
 			cartPopup,
-			Search
+			Search,
+			uniPopup
 		},
 		data() {
 			return {
@@ -87,7 +122,8 @@
 				productModalVisible: false,
 				cartPopupShow: false,
 				productsScrollTop: 0,
-				showSearch: false
+				showSearch: false,
+				selectedCategory: {}
 			}
 		},
 		computed: {
@@ -114,8 +150,6 @@
 					})
 				}, 1000)
 			}
-		},
-		onShow() {
 			const cart = uni.getStorageSync("cart")
 			this.cart = []
 			if (cart) {
@@ -132,16 +166,21 @@
 			this.orderId = orderId
 			this.tenantId = tenantId
 			this.cart = []
-			console.log(this.cart, cart, 'herererer')
 			if (cart) {
 				this.cart = cart
 			}
 			let data = await menuService.getMenu(tenantId)
 			this.categories = data
 			this.currentCategoryId = this.categories.length && this.categories[0].id
-			this.$nextTick(() => this.calcSize())
+			// this.$nextTick(() => this.calcSize())
 		},
 		methods: {
+			goToItemList(category) {
+				this.type = "right"
+				this.$refs.popup.open("right")
+				this.selectedCategory = category
+				console.log('here', category)
+			},
 			...mapMutations(['SET_ORDER_TYPE']),
 			switchOrderType() {
 				if (this.orderType === 'takein') {
@@ -285,4 +324,175 @@
 
 <style lang="scss">
 	@import './index.scss';
+
+	@mixin flex {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: row;
+	}
+
+	@mixin height {
+		/* #ifndef APP-NVUE */
+		height: 100%;
+		/* #endif */
+		/* #ifdef APP-NVUE */
+		flex: 1;
+		/* #endif */
+	}
+
+	.box {
+		@include flex;
+	}
+
+	.button {
+		@include flex;
+		align-items: center;
+		justify-content: center;
+		flex: 1;
+		height: 35px;
+		margin: 0 5px;
+		border-radius: 5px;
+	}
+
+	.example-body {
+		background-color: #fff;
+		padding: 10px 0;
+	}
+
+	.button-text {
+		color: #fff;
+		font-size: 12px;
+	}
+
+	.popup-content {
+		@include flex;
+		align-items: center;
+		justify-content: center;
+		padding: 15px;
+		height: 100%;
+		background-color: #fff;
+
+		.products {
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 10px;
+			width: 100%;
+
+			.product {
+				display: flex;
+				align-items: center;
+				margin-bottom: 20px;
+				width: 100%;
+
+				.content {
+					flex: 1;
+					flex-direction: column;
+					display: flex;
+					overflow: hidden;
+					width: 100%;
+					padding: 5px;
+					border-bottom: 1px solid #eef2f5;
+
+					.name {
+						font-size: 14px;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						margin-bottom: 4px;
+					}
+
+					.description {
+						margin-bottom: 10px;
+						display: -webkit-box;
+						overflow: hidden;
+						color: #999;
+						font-size: 12px;
+					}
+
+					.price {
+						font-size: 18px;
+						color: 13px;
+						font-weight: bold;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+					}
+				}
+			}
+		}
+	}
+
+	.popup-height {
+		@include height;
+	}
+
+	.text {
+		font-size: 12px;
+		color: #333;
+	}
+
+	.popup-success {
+		color: #fff;
+		background-color: #e1f3d8;
+	}
+
+	.popup-warn {
+		color: #fff;
+		background-color: #faecd8;
+	}
+
+	.popup-error {
+		color: #fff;
+		background-color: #fde2e2;
+	}
+
+	.popup-info {
+		color: #fff;
+		background-color: #f2f6fc;
+	}
+
+	.success-text {
+		color: #09bb07;
+	}
+
+	.warn-text {
+		color: #e6a23c;
+	}
+
+	.error-text {
+		color: #f56c6c;
+	}
+
+	.info-text {
+		color: #909399;
+	}
+
+	.dialog,
+	.share {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: column;
+	}
+
+	.dialog-box {
+		padding: 10px;
+	}
+
+	.dialog .button,
+	.share .button {
+		/* #ifndef APP-NVUE */
+		width: 100%;
+		/* #endif */
+		margin: 0;
+		margin-top: 10px;
+		padding: 3px 0;
+		flex: 1;
+	}
+
+	.dialog-text {
+		font-size: 14px;
+		color: #333;
+	}
 </style>
