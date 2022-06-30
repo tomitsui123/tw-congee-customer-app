@@ -15,6 +15,11 @@
 					<view class="button-text">開始點單</view>
 				</view>
 			</button>
+			<button class="section-1" @tap="sendSocket">
+				<view class="item">
+					<view class="button-text">test</view>
+				</view>
+			</button>
 		</view>
 	</view>
 </template>
@@ -58,6 +63,19 @@
 		},
 		methods: {
 			...mapMutations(['SET_TENANT']),
+			sendSocket() {
+				console.log('hihihih')
+				const tenantId = uni.getStorageSync("tenant_id")
+				uni.sendSocketMessage({
+					data: JSON.stringify({
+						action: "sendmessage",
+						data: {
+							tenantId,
+							message: 'testing'
+						}
+					})
+				})	
+			},
 			startOrder() {
 				if (this.isFinished) {
 					uni.setStorageSync('order_id', '')
