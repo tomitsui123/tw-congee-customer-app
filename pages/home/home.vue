@@ -64,17 +64,44 @@
 		methods: {
 			...mapMutations(['SET_TENANT']),
 			sendSocket() {
-				console.log('hihihih')
 				const tenantId = uni.getStorageSync("tenant_id")
+				const order = {
+					"customerUrl": "http://192.168.1.6",
+					"orderNumber": 37,
+					"address": "荃灣四陂坊11號地舖",
+					"shopName": "德發龍",
+					"tenantId": 2,
+					"orderId": "2BI2ZWXKqjPVVvMcmyPEmSvZ4rU",
+					"status": "FINISHED",
+					"statusText": "已完成",
+					"diningType": "TAKEAWAY",
+					"mobile": "",
+					"total": 36,
+					"tableNumber": "",
+					"tableId": "TAKEAWAY",
+					"paymentMethod": "",
+					"createdAt": "2022-06-30 16:55:33",
+					"details": [{
+						"categoryId": "2AZS8AzyQrSxigOGlHn3p7wHfYZ",
+						"itemId": "2BI2ZSfQpqtNfS6sDgxktb1PcVF",
+						"number": 2,
+						"displayName": "菜乾豬骨",
+						"price": 18,
+						"afterPrice": 18,
+						"productId": "2B20P5PGMzwuApC62zOlUs5bSbR",
+						"selectedOptionList": [],
+						"discount": {}
+					}]
+				}
 				uni.sendSocketMessage({
 					data: JSON.stringify({
 						action: "sendmessage",
 						data: {
 							tenantId,
-							message: 'testing'
+							message: `customer | ${JSON.stringify(order)}`
 						}
 					})
-				})	
+				})
 			},
 			startOrder() {
 				if (this.isFinished) {

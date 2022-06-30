@@ -265,6 +265,7 @@
 	}
 
 	.uni-popup__wrapper-box {
+		margin: auto;
 		/* #ifndef APP-NVUE */
 		display: block;
 		/* #endif */

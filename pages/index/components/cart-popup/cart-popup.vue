@@ -81,6 +81,7 @@
 
 <style lang="scss" scoped>
 	.cart-popup {
+		width: 100%;
 		background-color: $bg-color-white;
 		padding-bottom: 100rpx;
 	}

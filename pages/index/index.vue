@@ -53,13 +53,9 @@
 			</scroll-view>
 		</view>
 		 -->
-		<product-modal :product="product" :visible="productModalVisible" @cancel="closeProductDetailModal"
-			@add-to-cart="handleAddToCartInModal" />
-		<cart-bar :cart="cart" @add="handleAddToCart" @minus="handleMinusFromCart" @clear="clearCart" @pay="pay" />
-		<search :show="showSearch" :categories="categories" @hide="showSearch=false" @choose="showProductDetailModal">
-		</search>
 		<view>
 			<uni-popup style="height: 100%;" ref="popup" background-color="#fff" @change="change">
+				<view>hiasdfasdfasdf</view>
 				<view class="popup-content popup-height">
 					<scroll-view class="product-section" scroll-y scroll-with-animation :scroll-top="productsScrollTop">
 						<view class="products">
@@ -83,6 +79,11 @@
 				</view>
 			</uni-popup>
 		</view>
+		<product-modal :product="product" :visible="productModalVisible" @cancel="closeProductDetailModal"
+			@add-to-cart="handleAddToCartInModal" />
+		<cart-bar :cart="cart" @add="handleAddToCart" @minus="handleMinusFromCart" @clear="clearCart" @pay="pay" />
+		<search :show="showSearch" :categories="categories" @hide="showSearch=false" @choose="showProductDetailModal">
+		</search>
 	</view>
 </template>
 
@@ -155,6 +156,9 @@
 			if (cart) {
 				this.cart = cart
 			}
+			uni.connectSocket({
+				url: socketUrl
+			})
 		},
 		async onLoad(options) {
 			const tableNumber = uni.getStorageSync('table_number')
@@ -192,7 +196,6 @@
 				}
 			},
 			handleAddToCart(product) {
-				console.log('133', product)
 				product.discount = product.condition.reduce((acc, cur) => {
 					if (!product.selectedOptionList || product.selectedOptionList.length === 0) return acc
 					const selectedOptionList = product.selectedOptionList.map(e1 => e1.optionGroupId)
@@ -244,6 +247,7 @@
 					discount: product.discount,
 					condition: product.condition
 				})
+				uni.setStorageSync("cart", this.cart)
 			},
 			handleMinusFromCart(product) {
 				let index = this.cart.findIndex(item => item.id == product.id)

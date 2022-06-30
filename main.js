@@ -17,17 +17,12 @@ Vue.prototype.$util = util
 
 const app = new Vue({
 	store,
-    ...App
+	...App
 })
-app.$mount()
 
-uni.connectSocket({
-	url: socketUrl
-})
-uni.onSocketOpen(function(res) {
-	const tenantId = uni.getStorageSync("tenant_id")
-	console.log('WebSocket connected！', tenantId);
+const markTenant = () => {
 	try {
+		const tenantId = uni.getStorageSync("tenant_id")
 		uni.sendSocketMessage({
 			data: JSON.stringify({
 				action: "sendmessage",
@@ -36,18 +31,22 @@ uni.onSocketOpen(function(res) {
 					tenantId
 				}
 			})
-		})	
-	} catch(e) {
+		})
+		console.log('successfully mark tenant')
+	} catch (e) {
 		console.error(e)
 	}
-	
+}
+
+app.$mount()
+
+uni.connectSocket({
+	url: socketUrl
+})
+uni.onSocketOpen(function(res) {
+	console.log('WebSocket connected！');
+	markTenant()
 });
 uni.onSocketClose(function(res) {
 	console.log('socket closed!')
-})
-uni.onSocketMessage(function(res) {
-	console.log('----------------receive socket data--------------------')
-	console.log(JSON.stringify(res))
-	console.log('----------------receive socket data--------------------')
-	// Vue.prototype.$eventBus.$emit('getData', 1);
 })
